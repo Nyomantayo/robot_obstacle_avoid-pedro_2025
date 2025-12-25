@@ -66,31 +66,42 @@ void loop() {
 
     // cek kiri
     myServo.write(180);
+    delay(500);
     Jkiri = jarak();
-    delay(1000);
-    Serial.println("Ini Kondisi Servo Kiri!");
+    Serial.println("Robot Nengok ke Kiri!");
+    delay(2000);
 
     // cek kanan
     myServo.write(0);
+    delay(500);
     Jkanan = jarak();
-    delay(1000);
-    Serial.println("Ini Kondisi Servo Kanan!");
+    Serial.println("Robot Nengok ke Kanan!");
+    delay(2000);
 
     // balik tengah
     myServo.write(90);
-    delay(1000);
-    Serial.println("Ini Kondisi Servo Tengah!");
+    delay(500);
+    Serial.println("Robot Kembali ke Tengah!");
+    delay(2000);
 
     if (Jkiri > Jkanan) {
-      left();
-      delay(250);
-      stop();
-      delay(100);
+      Jdepan = jarak();
+      while (Jdepan <= 20) {
+        Serial.print("Jarak Depan : ");
+        Serial.println(Jdepan);
+        left();
+        Jdepan = jarak();
+        delay(10);
+      }
     } else if (Jkanan > Jkiri) {
-      right();
-      delay(250);
-      stop();
-      delay(100);
+      Jdepan = jarak();
+      while (Jdepan <= 20) {
+        Serial.print("Jarak Depan : ");
+        Serial.println(Jdepan);
+        right();
+        Jdepan = jarak();
+        delay(10);
+      }
     } else {
       stop();
       delay(200);
@@ -98,7 +109,6 @@ void loop() {
   } else {
     maju();
   }
-
   delay(20);
 }
 
