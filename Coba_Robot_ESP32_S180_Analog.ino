@@ -1,12 +1,12 @@
+// // Tahap Riset
 // // ============   IMPORT LIBRARY    ============
-// // Library untuk kontrol servo pada ESP32
 // #include <ESP32Servo.h>
 
 // // ============   SET PIN KOMPONEN  ============
 // // Ultrasonic
 // #define TRG 21
 // #define ECH 19
-// // Motor Driver (L289N)
+// // Motor Driver (L298N)
 // #define PINA 18
 // #define PINB 5
 // #define PINC 2
@@ -19,50 +19,55 @@
 // int Jdepan;
 // int Jkiri;
 // int Jkanan;
+
 // // Variabel Cek Jarak Minimum Robot (Agar Berhenti)
 // int cek = 25;
+
+// // ============   PWM MOTOR (ESP32 Core 3.x)  ============
+// // PWM config
+// const int PWM_FREQ = 20000; // 20 kHz
+// const int PWM_RES  = 8;     // 8-bit => 0..255
+
+// // Speed (0..255)
+// int SPEED_MAJU = 180;
+// int SPEED_TURN = 170;
+// int SPEED_BACK = 160;
+// int pwmA, pwmB;
 
 // // ============   DEKLARASI OBJECT ============
 // // Object Servo
 // Servo myServo;
 
 // void setup() {
-//   // Mulai Komunikasi Serial dengan Baud Rate 115200
-//   // -> Agar bisa melakukan debug menggunakan serial monitor nantinya
 //   Serial.begin(115200);
 
-//   // Konfig Pin Ultrasonic (Sensor Jarak)
-//   pinMode(TRG, OUTPUT); // -> Trigger set sebagai output (mengeluarkan gelombang)
-//   pinMode(ECH, INPUT); // -> Echo set sebagai input (menerima gelombang)
+//   // Konfig Pin Ultrasonic
+//   pinMode(TRG, OUTPUT);
+//   pinMode(ECH, INPUT);
 
-//   // Konfig Pin Motor Driver (Penggerak Ban)
-//   pinMode(PINA, OUTPUT);
-//   pinMode(PINB, OUTPUT);
-//   pinMode(PINC, OUTPUT);
-//   pinMode(PIND, OUTPUT);
+//   // Attach PWM ke pin-pin motor (WAJIB untuk core 3.x)
+//   ledcAttach(PINA, PWM_FREQ, PWM_RES);
+//   ledcAttach(PINB, PWM_FREQ, PWM_RES);
+//   ledcAttach(PINC, PWM_FREQ, PWM_RES);
+//   ledcAttach(PIND, PWM_FREQ, PWM_RES);
 
-//   // Set motor sebagai LOW dulu semuanya
-//   // Karena default adalah HIGH (Mencegah ban langsung bergerak)
+//   // Stop motor dulu
 //   stop();
 
-//   // Hubungkan Object Servo (yang sudah dibuat sebelumnya) ke Pin SERVO1(23)
-//   myServo.attach(SERVO1);
+//   // Hubungkan servo
+//   myServo.attach(SERVO1, 500, 2400);
+//   myServo.write(SERVO_STOP);
 
-//   // Set arah servo ke depan (90 derajat) terlebih dahulu
-//   myServo.write(90);
 //   delay(800);
 // }
 
 // void loop() {
-//   // Baca Jarak Depan
 //   Jdepan = jarak();
 
-//   // Jika di depan ada obstacle (Halangan)
 //   if (Jdepan > 0 && Jdepan < cek) {
-//     // Mundur sedikit
 //     back();
 //     delay(200);
-//     // Stop untuk melihat jarak
+
 //     stop();
 //     delay(500);
 
@@ -88,7 +93,7 @@
 
 //     if (Jkiri > Jkanan) {
 //       Jdepan = jarak();
-//       while (Jdepan <= 20) {
+//       while (Jdepan > 0 && Jdepan <= 20) {
 //         Serial.print("Jarak Depan : ");
 //         Serial.println(Jdepan);
 //         left();
@@ -97,7 +102,7 @@
 //       }
 //     } else if (Jkanan > Jkiri) {
 //       Jdepan = jarak();
-//       while (Jdepan <= 20) {
+//       while (Jdepan > 0 && Jdepan <= 20) {
 //         Serial.print("Jarak Depan : ");
 //         Serial.println(Jdepan);
 //         right();
@@ -111,71 +116,100 @@
 //   } else {
 //     maju();
 //   }
+
 //   delay(20);
 // }
 
 // int jarak() {
 //   long duration, distance;
 
-//   // ===== Mengirim gelombang dari trigger untuk memulai pengukuran =====
 //   digitalWrite(TRG, LOW);
 //   delayMicroseconds(2);
 //   digitalWrite(TRG, HIGH);
 //   delayMicroseconds(10);
 //   digitalWrite(TRG, LOW);
 
-//   // pulseIn membaca waktu tempuh gelombang dan disimpan di duration
 //   duration = pulseIn(ECH, HIGH, 30000);
-
-//   // Ukur jarak menggunakan rumus fisika; 
-//   // Jarak = Kecepatan x Waktu
-//   // -> Karena cara kerja Ultrasonik adalah memantulkan gelombang, maka jarak/2
-//   // -> Kecepatan didapat dari kecepatan gelombang suara (0.0343)
 //   distance = (duration * 0.0343) / 2;
 
 //   Serial.print("Distance sensor : ");
 //   Serial.println(distance);
 
-//   // Berikan sedikit delay
 //   delay(100);
 //   return (int)distance;
 // }
 
+// // ===== Gerak robot (PWM) =====
 // void maju() {
-//   digitalWrite(PINA, HIGH);
-//   digitalWrite(PINB, LOW);
-//   digitalWrite(PINC, HIGH);
-//   digitalWrite(PIND, LOW);
+//   int spdKiri, spdKanan;
+//   spdKiri = 90;
+//   spdKanan = 116;
+//   Serial.println("Maju");
+//   motorKiri(spdKiri);
+//   motorKanan(spdKanan);
 // }
 
 // void right() {
+//   int spdKiri, spdKanan;
+//   spdKiri = 100;
+//   spdKanan = -126;
 //   Serial.println("Kanan");
-//   digitalWrite(PINA, HIGH);
-//   digitalWrite(PINB, LOW);
-//   digitalWrite(PINC, LOW);
-//   digitalWrite(PIND, HIGH);
+//   motorKiri(spdKiri);
+//   motorKanan(-spdKanan); // spin kanan
 // }
 
 // void left() {
+//   int spdKiri, spdKanan;
+//   spdKiri = -100;
+//   spdKanan = 126;
 //   Serial.println("Kiri");
-//   digitalWrite(PINA, LOW);
-//   digitalWrite(PINB, HIGH);
-//   digitalWrite(PINC, HIGH);
-//   digitalWrite(PIND, LOW);
+//   motorKiri(-spdKiri);  // spin kiri
+//   motorKanan(spdKanan);
 // }
 
 // void stop() {
 //   Serial.println("Berhenti");
-//   digitalWrite(PINA, LOW);
-//   digitalWrite(PINB, LOW);
-//   digitalWrite(PINC, LOW);
-//   digitalWrite(PIND, LOW);
+//   motorKiri(0);
+//   motorKanan(0);
 // }
 
 // void back() {
 //   Serial.println("Mundur");
-//   digitalWrite(PINA, LOW);
-//   digitalWrite(PINB, HIGH);
-//   digitalWrite(PINC, LOW);
-//   digitalWrite(PIND, HIGH);
+//   motorKiri(-SPEED_BACK);
+//   motorKanan(-SPEED_BACK);
+// }
+
+// // ===== Helper PWM =====
+// void pwmWritePin(int pin, int duty) {
+//   duty = constrain(duty, 0, 255);
+//   ledcWrite(pin, duty);   // core 3.x: ledcWrite pakai "pin"
+// }
+
+// // speed: -255..255
+// void motorKiri(int speed) {
+//   speed = constrain(speed, -255, 255);
+//   if (speed > 0) {            // maju
+//     pwmWritePin(PINA, speed);
+//     pwmWritePin(PINB, 0);
+//   } else if (speed < 0) {     // mundur
+//     pwmWritePin(PINA, 0);
+//     pwmWritePin(PINB, -speed);
+//   } else {                    // stop
+//     pwmWritePin(PINA, 0);
+//     pwmWritePin(PINB, 0);
+//   }
+// }
+
+// void motorKanan(int speed) {
+//   speed = constrain(speed, -255, 255);
+//   if (speed > 0) {            // maju
+//     pwmWritePin(PINC, speed);
+//     pwmWritePin(PIND, 0);
+//   } else if (speed < 0) {     // mundur
+//     pwmWritePin(PINC, 0);
+//     pwmWritePin(PIND, -speed);
+//   } else {                    // stop
+//     pwmWritePin(PINC, 0);
+//     pwmWritePin(PIND, 0);
+//   }
 // }

@@ -15,6 +15,12 @@
 // #define SERVO1 23
 
 // // ============   DEFINE VARIABEL  ============
+// // Servo Kecepatan
+// const int SERVO_STOP = 95;
+// const int SERVO_KANAN = SERVO_STOP - 25;  // muter satu arah
+// const int SERVO_KIRI = SERVO_STOP + 25;   // muter arah sebaliknya
+// const int DURASI_TENGOK_MS = 350;
+// const int JEDA_MS = 600;
 // // Variabel Simpan Jarak Ultrasonik
 // int Jdepan;
 // int Jkiri;
@@ -32,8 +38,8 @@
 //   Serial.begin(115200);
 
 //   // Konfig Pin Ultrasonic (Sensor Jarak)
-//   pinMode(TRG, OUTPUT); // -> Trigger set sebagai output (mengeluarkan gelombang)
-//   pinMode(ECH, INPUT); // -> Echo set sebagai input (menerima gelombang)
+//   pinMode(TRG, OUTPUT);  // -> Trigger set sebagai output (mengeluarkan gelombang)
+//   pinMode(ECH, INPUT);   // -> Echo set sebagai input (menerima gelombang)
 
 //   // Konfig Pin Motor Driver (Penggerak Ban)
 //   pinMode(PINA, OUTPUT);
@@ -48,8 +54,6 @@
 //   // Hubungkan Object Servo (yang sudah dibuat sebelumnya) ke Pin SERVO1(23)
 //   myServo.attach(SERVO1);
 
-//   // Set arah servo ke depan (90 derajat) terlebih dahulu
-//   myServo.write(90);
 //   delay(800);
 // }
 
@@ -66,25 +70,37 @@
 //     stop();
 //     delay(500);
 
-//     // === Cek Jarak Sebelah Kiri ===
-//     myServo.write(180); // -> 0 Paling Kanan, 180 Paling Kiri
-//     delay(500);
-//     Jkiri = jarak();
-//     Serial.println("Robot Nengok ke Kiri!");
-//     delay(2000);
-
-//     // === Cek Jarak Sebelah Kanan ===
-//     myServo.write(0); // -> 0 Paling Kanan, 180 Paling Kiri
-//     delay(500);
+//     // ==== Tengok kanan ====
+//     myServo.write(SERVO_KANAN);
+//     delay(DURASI_TENGOK_MS);
+//     myServo.write(SERVO_STOP);
+//     delay(JEDA_MS);
 //     Jkanan = jarak();
 //     Serial.println("Robot Nengok ke Kanan!");
 //     delay(2000);
 
-//     // === Kembali Ke Depan ===
-//     myServo.write(90); // -> 0 Paling Kanan, 180 Paling Kiri
-//     delay(500);
-//     Serial.println("Robot Kembali ke Tengah!");
+//     // Balik ke tengah
+//     myServo.write(SERVO_KIRI);
+//     delay(DURASI_TENGOK_MS);
+//     myServo.write(SERVO_STOP);
+//     Serial.println("Posisi Tengah!");
+//     delay(JEDA_MS);
+
+//     // ==== Tengok kanan ====
+//     myServo.write(SERVO_KIRI);
+//     delay(DURASI_TENGOK_MS);
+//     myServo.write(SERVO_STOP);
+//     delay(JEDA_MS);
+//     Jkiri = jarak();
+//     Serial.println("Robot Nengok ke Kiri!");
 //     delay(2000);
+
+//     // Balik ke tengah
+//     myServo.write(SERVO_KANAN-5);
+//     delay(DURASI_TENGOK_MS);
+//     myServo.write(SERVO_STOP);
+//     Serial.println("Robot Kembali ke Tengah!");
+//     delay(JEDA_MS);
 
 //     if (Jkiri > Jkanan) {
 //       Jdepan = jarak();
@@ -127,7 +143,7 @@
 //   // pulseIn membaca waktu tempuh gelombang dan disimpan di duration
 //   duration = pulseIn(ECH, HIGH, 30000);
 
-//   // Ukur jarak menggunakan rumus fisika; 
+//   // Ukur jarak menggunakan rumus fisika;
 //   // Jarak = Kecepatan x Waktu
 //   // -> Karena cara kerja Ultrasonik adalah memantulkan gelombang, maka jarak/2
 //   // -> Kecepatan didapat dari kecepatan gelombang suara (0.0343)
